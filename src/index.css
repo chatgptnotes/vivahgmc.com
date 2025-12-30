@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Force white text - outside of layers to ensure it applies */
+.text-force-white,
+.text-force-white *,
+.text-force-white h1,
+.text-force-white h2,
+.text-force-white h3,
+.text-force-white p,
+.text-force-white div,
+.text-force-white span {
+  color: #ffffff !important;
+}
+
+.text-force-primary {
+  color: #7C3AED !important;
+}
+
+@layer base {
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    margin: 0;
+    min-height: 100vh;
+  }
+}
+
+@layer utilities {
+  .delay-1000 {
+    animation-delay: 1s;
+  }
+
+  .delay-700 {
+    animation-delay: 0.7s;
+  }
+
+  .animate-pulse {
+    animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.05);
+    }
+  }
+}
