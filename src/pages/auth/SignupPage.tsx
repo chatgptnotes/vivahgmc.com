@@ -2,7 +2,35 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Footer } from '../../components/ui/Footer';
-import { Favorite, Email, Lock, Person, Phone, ArrowForward, School, Check } from '@mui/icons-material';
+import { Favorite, Email, Lock, Person, Phone, ArrowForward, School, Check, AdminPanelSettings } from '@mui/icons-material';
+
+// Development credentials - Remove in production!
+const DEV_CREDENTIALS = {
+  superadmin: {
+    fullName: 'Super Admin',
+    email: 'superadmin@vivahgmc.com',
+    phone: '+91 9999999999',
+    batchYear: '2000',
+    password: 'SuperAdmin@123',
+    userType: 'parent' as 'parent' | 'child'
+  },
+  admin: {
+    fullName: 'Admin User',
+    email: 'admin@vivahgmc.com',
+    phone: '+91 9999999998',
+    batchYear: '2005',
+    password: 'Admin@123',
+    userType: 'parent' as 'parent' | 'child'
+  },
+  user: {
+    fullName: 'Regular User',
+    email: 'user@vivahgmc.com',
+    phone: '+91 9999999997',
+    batchYear: '2010',
+    password: 'User@123',
+    userType: 'child' as 'parent' | 'child'
+  }
+};
 
 export const SignupPage: React.FC = () => {
   const navigate = useNavigate();
@@ -65,6 +93,49 @@ export const SignupPage: React.FC = () => {
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     setError('');
+  };
+
+  const handleQuickSignup = async (credType: 'superadmin' | 'admin' | 'user') => {
+    const creds = DEV_CREDENTIALS[credType];
+    setFormData({
+      fullName: creds.fullName,
+      email: creds.email,
+      phone: creds.phone,
+      batchYear: creds.batchYear,
+      password: creds.password,
+      confirmPassword: creds.password,
+      userType: creds.userType
+    });
+
+    try {
+      setLoading(true);
+      setError('');
+
+      const { error: signUpError } = await signUp(creds.email, creds.password, {
+        full_name: creds.fullName,
+        phone: creds.phone,
+        batch_year: creds.batchYear,
+        user_type: creds.userType,
+      });
+
+      if (signUpError) {
+        if (signUpError.message.includes('already registered')) {
+          setError(`${credType.toUpperCase()} account already exists. Please login instead.`);
+        } else {
+          throw signUpError;
+        }
+      } else {
+        setSuccess(`${credType.toUpperCase()} account created successfully!`);
+        setTimeout(() => {
+          navigate('/profile');
+        }, 1500);
+      }
+    } catch (err: any) {
+      console.error('Quick signup error:', err);
+      setError(err.message || 'Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -463,6 +534,154 @@ export const SignupPage: React.FC = () => {
                 {loading ? 'Creating Account...' : 'Create Account'} {!loading && <ArrowForward style={{ fontSize: 20 }} />}
               </button>
             </form>
+
+            {/* Development Quick Signup - Remove in Production */}
+            <div style={{ marginTop: '24px', padding: '16px', background: '#FEF3C7', borderRadius: '12px', border: '2px solid #F59E0B' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                <AdminPanelSettings style={{ fontSize: 20, color: '#D97706' }} />
+                <p style={{ fontSize: '14px', fontWeight: 600, color: '#92400E', margin: 0 }}>
+                  Development Mode - Quick Account Creation
+                </p>
+              </div>
+
+              <p style={{ fontSize: '12px', color: '#78350F', marginBottom: '16px' }}>
+                Create test accounts instantly for development. Remove this section in production!
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {/* SuperAdmin Quick Signup */}
+                <button
+                  onClick={() => handleQuickSignup('superadmin')}
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    background: loading ? '#D1D5DB' : 'linear-gradient(to right, #DC2626, #B91C1C)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) e.currentTarget.style.transform = 'translateX(4px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AdminPanelSettings style={{ fontSize: 18 }} />
+                    Create SuperAdmin Account
+                  </span>
+                  <span style={{ fontSize: '11px', opacity: 0.8 }}>
+                    {DEV_CREDENTIALS.superadmin.email}
+                  </span>
+                </button>
+
+                {/* Admin Quick Signup */}
+                <button
+                  onClick={() => handleQuickSignup('admin')}
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    background: loading ? '#D1D5DB' : 'linear-gradient(to right, #2563EB, #1D4ED8)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) e.currentTarget.style.transform = 'translateX(4px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <AdminPanelSettings style={{ fontSize: 18 }} />
+                    Create Admin Account
+                  </span>
+                  <span style={{ fontSize: '11px', opacity: 0.8 }}>
+                    {DEV_CREDENTIALS.admin.email}
+                  </span>
+                </button>
+
+                {/* User Quick Signup */}
+                <button
+                  onClick={() => handleQuickSignup('user')}
+                  disabled={loading}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    background: loading ? '#D1D5DB' : 'linear-gradient(to right, #059669, #047857)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!loading) e.currentTarget.style.transform = 'translateX(4px)';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!loading) e.currentTarget.style.transform = 'translateX(0)';
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Person style={{ fontSize: 18 }} />
+                    Create User Account
+                  </span>
+                  <span style={{ fontSize: '11px', opacity: 0.8 }}>
+                    {DEV_CREDENTIALS.user.email}
+                  </span>
+                </button>
+              </div>
+
+              {/* Credentials Reference */}
+              <details style={{ marginTop: '12px' }}>
+                <summary style={{ fontSize: '12px', color: '#92400E', cursor: 'pointer', fontWeight: 600 }}>
+                  View All Account Details
+                </summary>
+                <div style={{ marginTop: '8px', fontSize: '11px', color: '#78350F', fontFamily: 'monospace', background: '#FFFBEB', padding: '8px', borderRadius: '4px' }}>
+                  <div style={{ marginBottom: '8px' }}>
+                    <strong>SuperAdmin:</strong><br />
+                    Email: {DEV_CREDENTIALS.superadmin.email}<br />
+                    Password: {DEV_CREDENTIALS.superadmin.password}<br />
+                    Name: {DEV_CREDENTIALS.superadmin.fullName}
+                  </div>
+                  <div style={{ marginBottom: '8px' }}>
+                    <strong>Admin:</strong><br />
+                    Email: {DEV_CREDENTIALS.admin.email}<br />
+                    Password: {DEV_CREDENTIALS.admin.password}<br />
+                    Name: {DEV_CREDENTIALS.admin.fullName}
+                  </div>
+                  <div>
+                    <strong>User:</strong><br />
+                    Email: {DEV_CREDENTIALS.user.email}<br />
+                    Password: {DEV_CREDENTIALS.user.password}<br />
+                    Name: {DEV_CREDENTIALS.user.fullName}
+                  </div>
+                </div>
+              </details>
+            </div>
 
             {/* Divider */}
             <div style={{ position: 'relative', margin: '24px 0' }}>
