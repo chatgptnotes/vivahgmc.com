@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Footer } from '../../components/ui/Footer';
 import {
   Search,
@@ -10,6 +11,7 @@ import {
   School,
   VerifiedUser,
   ArrowForward,
+  Person,
 } from '@mui/icons-material';
 
 // Mock data for profiles
@@ -89,6 +91,7 @@ const mockProfiles = [
 ];
 
 export const BrowseProfilesPage: React.FC = () => {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [filters, setFilters] = useState({
@@ -121,34 +124,62 @@ export const BrowseProfilesPage: React.FC = () => {
               <Favorite style={{ fontSize: 32, color: '#7C3AED' }} />
               <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827' }}>Browse Profiles</h1>
             </div>
-            <button
-              onClick={() => setShowFilters(!showFilters)}
-              style={{
-                padding: '12px 24px',
-                fontSize: '16px',
-                fontWeight: 600,
-                background: '#ffffff',
-                color: '#7C3AED',
-                border: '2px solid #7C3AED',
-                borderRadius: '12px',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#7C3AED';
-                e.currentTarget.style.color = '#ffffff';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#ffffff';
-                e.currentTarget.style.color = '#7C3AED';
-              }}
-            >
-              <FilterList style={{ fontSize: 20 }} />
-              Filters
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => navigate('/profile')}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  background: 'linear-gradient(to right, #7C3AED, #6D28D9)',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = '0 10px 20px rgba(124, 58, 237, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <Person style={{ fontSize: 20 }} />
+                My Profile
+              </button>
+              <button
+                onClick={() => setShowFilters(!showFilters)}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  background: '#ffffff',
+                  color: '#7C3AED',
+                  border: '2px solid #7C3AED',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#7C3AED';
+                  e.currentTarget.style.color = '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.color = '#7C3AED';
+                }}
+              >
+                <FilterList style={{ fontSize: 20 }} />
+                Filters
+              </button>
+            </div>
           </div>
 
           {/* Search Bar */}
