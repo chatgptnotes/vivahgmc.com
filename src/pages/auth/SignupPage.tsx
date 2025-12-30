@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Footer } from '../../components/ui/Footer';
-import { Favorite, Email, Lock, Person, Phone, ArrowForward, School, Check, AdminPanelSettings } from '@mui/icons-material';
+import { Favorite, Email, Lock, Person, Phone, ArrowForward, School, Check, AdminPanelSettings, Verified, Send } from '@mui/icons-material';
 
 // Development credentials - Remove in production!
 const DEV_CREDENTIALS = {
@@ -42,6 +42,7 @@ export const SignupPage: React.FC = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
+    countryCode: '+91',
     phone: '',
     batchYear: '',
     password: '',
@@ -49,12 +50,139 @@ export const SignupPage: React.FC = () => {
     userType: 'parent' as 'parent' | 'child',
   });
 
+  const [verification, setVerification] = useState({
+    emailVerified: false,
+    phoneVerified: false,
+    emailOtp: '',
+    phoneOtp: '',
+    emailOtpSent: false,
+    phoneOtpSent: false,
+    emailOtpLoading: false,
+    phoneOtpLoading: false,
+  });
+
+  const [otpInputs, setOtpInputs] = useState({
+    emailOtp: '',
+    phoneOtp: '',
+  });
+
+  // Popular country codes
+  const countryCodes = [
+    { code: '+91', country: 'India', flag: '🇮🇳' },
+    { code: '+1', country: 'USA', flag: '🇺🇸' },
+    { code: '+44', country: 'UK', flag: '🇬🇧' },
+    { code: '+971', country: 'UAE', flag: '🇦🇪' },
+    { code: '+61', country: 'Australia', flag: '🇦🇺' },
+    { code: '+65', country: 'Singapore', flag: '🇸🇬' },
+    { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
+    { code: '+81', country: 'Japan', flag: '🇯🇵' },
+    { code: '+49', country: 'Germany', flag: '🇩🇪' },
+    { code: '+33', country: 'France', flag: '🇫🇷' },
+    { code: '+86', country: 'China', flag: '🇨🇳' },
+    { code: '+82', country: 'South Korea', flag: '🇰🇷' },
+    { code: '+7', country: 'Russia', flag: '🇷🇺' },
+    { code: '+55', country: 'Brazil', flag: '🇧🇷' },
+    { code: '+27', country: 'South Africa', flag: '🇿🇦' },
+  ];
+
+  const sendEmailOtp = async () => {
+    if (!formData.email) {
+      setError('Please enter your email address');
+      return;
+    }
+
+    setVerification(prev => ({ ...prev, emailOtpLoading: true }));
+    setError('');
+
+    try {
+      // Simulate OTP sending (in production, use Supabase or email service)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      setVerification(prev => ({
+        ...prev,
+        emailOtp: otp,
+        emailOtpSent: true,
+        emailOtpLoading: false,
+      }));
+
+      setSuccess(`OTP sent to ${formData.email}. Check your inbox! (Dev: ${otp})`);
+
+      // Auto-clear success message after 5 seconds
+      setTimeout(() => setSuccess(''), 5000);
+    } catch (err) {
+      setError('Failed to send OTP. Please try again.');
+      setVerification(prev => ({ ...prev, emailOtpLoading: false }));
+    }
+  };
+
+  const sendPhoneOtp = async () => {
+    if (!formData.phone) {
+      setError('Please enter your phone number');
+      return;
+    }
+
+    setVerification(prev => ({ ...prev, phoneOtpLoading: true }));
+    setError('');
+
+    try {
+      // Simulate OTP sending (in production, use Twilio or SMS service)
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+      setVerification(prev => ({
+        ...prev,
+        phoneOtp: otp,
+        phoneOtpSent: true,
+        phoneOtpLoading: false,
+      }));
+
+      setSuccess(`OTP sent to ${formData.countryCode} ${formData.phone}. (Dev: ${otp})`);
+
+      // Auto-clear success message after 5 seconds
+      setTimeout(() => setSuccess(''), 5000);
+    } catch (err) {
+      setError('Failed to send OTP. Please try again.');
+      setVerification(prev => ({ ...prev, phoneOtpLoading: false }));
+    }
+  };
+
+  const verifyEmailOtp = () => {
+    if (otpInputs.emailOtp === verification.emailOtp) {
+      setVerification(prev => ({ ...prev, emailVerified: true }));
+      setSuccess('Email verified successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      setError('Invalid OTP. Please check and try again.');
+    }
+  };
+
+  const verifyPhoneOtp = () => {
+    if (otpInputs.phoneOtp === verification.phoneOtp) {
+      setVerification(prev => ({ ...prev, phoneVerified: true }));
+      setSuccess('Phone number verified successfully!');
+      setTimeout(() => setSuccess(''), 3000);
+    } else {
+      setError('Invalid OTP. Please check and try again.');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
     // Validation
+    if (!verification.emailVerified) {
+      setError('Please verify your email address');
+      return;
+    }
+
+    if (!verification.phoneVerified) {
+      setError('Please verify your phone number');
+      return;
+    }
+
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -100,11 +228,24 @@ export const SignupPage: React.FC = () => {
     setFormData({
       fullName: creds.fullName,
       email: creds.email,
-      phone: creds.phone,
+      countryCode: '+91',
+      phone: creds.phone.replace('+91 ', ''),
       batchYear: creds.batchYear,
       password: creds.password,
       confirmPassword: creds.password,
       userType: creds.userType
+    });
+
+    // Auto-verify for quick signup in development
+    setVerification({
+      emailVerified: true,
+      phoneVerified: true,
+      emailOtp: '',
+      phoneOtp: '',
+      emailOtpSent: false,
+      phoneOtpSent: false,
+      emailOtpLoading: false,
+      phoneOtpLoading: false,
     });
 
     try {
@@ -113,7 +254,7 @@ export const SignupPage: React.FC = () => {
 
       const { error: signUpError } = await signUp(creds.email, creds.password, {
         full_name: creds.fullName,
-        phone: creds.phone,
+        phone: `+91 ${creds.phone.replace('+91 ', '')}`,
         batch_year: creds.batchYear,
         user_type: creds.userType,
       });
@@ -319,7 +460,7 @@ export const SignupPage: React.FC = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                 <div>
                   <label htmlFor="email" style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
-                    Email Address
+                    Email Address {verification.emailVerified && <Verified style={{ fontSize: 16, color: '#10B981', marginLeft: '4px' }} />}
                   </label>
                   <div style={{ position: 'relative' }}>
                     <div style={{ position: 'absolute', top: '50%', left: '16px', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
@@ -330,69 +471,271 @@ export const SignupPage: React.FC = () => {
                       type="email"
                       value={formData.email}
                       onChange={(e) => handleChange('email', e.target.value)}
+                      disabled={verification.emailVerified}
                       style={{
                         width: '100%',
                         paddingLeft: '48px',
-                        paddingRight: '16px',
+                        paddingRight: verification.emailVerified ? '16px' : '90px',
                         paddingTop: '12px',
                         paddingBottom: '12px',
-                        border: '1px solid #D1D5DB',
+                        border: verification.emailVerified ? '2px solid #10B981' : '1px solid #D1D5DB',
                         borderRadius: '12px',
                         fontSize: '16px',
                         outline: 'none',
                         transition: 'all 0.2s',
+                        background: verification.emailVerified ? '#D1FAE5' : '#ffffff',
+                        opacity: verification.emailVerified ? 0.8 : 1,
                       }}
                       onFocus={(e) => {
-                        e.currentTarget.style.borderColor = '#7C3AED';
-                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124, 58, 237, 0.1)';
+                        if (!verification.emailVerified) {
+                          e.currentTarget.style.borderColor = '#7C3AED';
+                          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124, 58, 237, 0.1)';
+                        }
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.borderColor = '#D1D5DB';
-                        e.currentTarget.style.boxShadow = 'none';
+                        if (!verification.emailVerified) {
+                          e.currentTarget.style.borderColor = '#D1D5DB';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }
                       }}
                       placeholder="your@email.com"
                       required
                     />
+                    {!verification.emailVerified && (
+                      <button
+                        type="button"
+                        onClick={sendEmailOtp}
+                        disabled={verification.emailOtpLoading || !formData.email}
+                        style={{
+                          position: 'absolute',
+                          right: '8px',
+                          top: '50%',
+                          transform: 'translateY(-50%)',
+                          padding: '6px 12px',
+                          fontSize: '12px',
+                          fontWeight: 600,
+                          background: verification.emailOtpLoading ? '#D1D5DB' : '#7C3AED',
+                          color: '#ffffff',
+                          border: 'none',
+                          borderRadius: '8px',
+                          cursor: verification.emailOtpLoading || !formData.email ? 'not-allowed' : 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        <Send style={{ fontSize: 14 }} />
+                        {verification.emailOtpSent ? 'Resend' : 'Send OTP'}
+                      </button>
+                    )}
                   </div>
+
+                  {/* Email OTP Input */}
+                  {verification.emailOtpSent && !verification.emailVerified && (
+                    <div style={{ marginTop: '12px' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="text"
+                          value={otpInputs.emailOtp}
+                          onChange={(e) => setOtpInputs(prev => ({ ...prev, emailOtp: e.target.value }))}
+                          placeholder="Enter 6-digit OTP"
+                          maxLength={6}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            border: '1px solid #D1D5DB',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            outline: 'none',
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = '#7C3AED';
+                            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124, 58, 237, 0.1)';
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.borderColor = '#D1D5DB';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={verifyEmailOtp}
+                          disabled={otpInputs.emailOtp.length !== 6}
+                          style={{
+                            padding: '10px 16px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            background: otpInputs.emailOtp.length === 6 ? '#10B981' : '#D1D5DB',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: otpInputs.emailOtp.length === 6 ? 'pointer' : 'not-allowed',
+                          }}
+                        >
+                          Verify
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
                   <label htmlFor="phone" style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#374151', marginBottom: '8px' }}>
-                    Phone Number
+                    Phone Number {verification.phoneVerified && <Verified style={{ fontSize: 16, color: '#10B981', marginLeft: '4px' }} />}
                   </label>
-                  <div style={{ position: 'relative' }}>
-                    <div style={{ position: 'absolute', top: '50%', left: '16px', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
-                      <Phone style={{ fontSize: 20, color: '#9CA3AF' }} />
-                    </div>
-                    <input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) => handleChange('phone', e.target.value)}
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    {/* Country Code Dropdown */}
+                    <select
+                      value={formData.countryCode}
+                      onChange={(e) => handleChange('countryCode', e.target.value)}
+                      disabled={verification.phoneVerified}
                       style={{
-                        width: '100%',
-                        paddingLeft: '48px',
-                        paddingRight: '16px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        border: '1px solid #D1D5DB',
+                        width: '120px',
+                        padding: '12px',
+                        border: verification.phoneVerified ? '2px solid #10B981' : '1px solid #D1D5DB',
                         borderRadius: '12px',
-                        fontSize: '16px',
+                        fontSize: '14px',
                         outline: 'none',
-                        transition: 'all 0.2s',
+                        background: verification.phoneVerified ? '#D1FAE5' : '#ffffff',
+                        cursor: verification.phoneVerified ? 'not-allowed' : 'pointer',
                       }}
                       onFocus={(e) => {
-                        e.currentTarget.style.borderColor = '#7C3AED';
-                        e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124, 58, 237, 0.1)';
+                        if (!verification.phoneVerified) {
+                          e.currentTarget.style.borderColor = '#7C3AED';
+                          e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124, 58, 237, 0.1)';
+                        }
                       }}
                       onBlur={(e) => {
-                        e.currentTarget.style.borderColor = '#D1D5DB';
-                        e.currentTarget.style.boxShadow = 'none';
+                        if (!verification.phoneVerified) {
+                          e.currentTarget.style.borderColor = '#D1D5DB';
+                          e.currentTarget.style.boxShadow = 'none';
+                        }
                       }}
-                      placeholder="+91 XXXXX XXXXX"
-                      required
-                    />
+                    >
+                      {countryCodes.map((cc) => (
+                        <option key={cc.code} value={cc.code}>
+                          {cc.flag} {cc.code}
+                        </option>
+                      ))}
+                    </select>
+
+                    {/* Phone Input */}
+                    <div style={{ flex: 1, position: 'relative' }}>
+                      <div style={{ position: 'absolute', top: '50%', left: '16px', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                        <Phone style={{ fontSize: 20, color: '#9CA3AF' }} />
+                      </div>
+                      <input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleChange('phone', e.target.value)}
+                        disabled={verification.phoneVerified}
+                        style={{
+                          width: '100%',
+                          paddingLeft: '48px',
+                          paddingRight: verification.phoneVerified ? '16px' : '90px',
+                          paddingTop: '12px',
+                          paddingBottom: '12px',
+                          border: verification.phoneVerified ? '2px solid #10B981' : '1px solid #D1D5DB',
+                          borderRadius: '12px',
+                          fontSize: '16px',
+                          outline: 'none',
+                          transition: 'all 0.2s',
+                          background: verification.phoneVerified ? '#D1FAE5' : '#ffffff',
+                          opacity: verification.phoneVerified ? 0.8 : 1,
+                        }}
+                        onFocus={(e) => {
+                          if (!verification.phoneVerified) {
+                            e.currentTarget.style.borderColor = '#7C3AED';
+                            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124, 58, 237, 0.1)';
+                          }
+                        }}
+                        onBlur={(e) => {
+                          if (!verification.phoneVerified) {
+                            e.currentTarget.style.borderColor = '#D1D5DB';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }
+                        }}
+                        placeholder="9999999999"
+                        required
+                      />
+                      {!verification.phoneVerified && (
+                        <button
+                          type="button"
+                          onClick={sendPhoneOtp}
+                          disabled={verification.phoneOtpLoading || !formData.phone}
+                          style={{
+                            position: 'absolute',
+                            right: '8px',
+                            top: '50%',
+                            transform: 'translateY(-50%)',
+                            padding: '6px 12px',
+                            fontSize: '12px',
+                            fontWeight: 600,
+                            background: verification.phoneOtpLoading ? '#D1D5DB' : '#7C3AED',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: verification.phoneOtpLoading || !formData.phone ? 'not-allowed' : 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                          }}
+                        >
+                          <Send style={{ fontSize: 14 }} />
+                          {verification.phoneOtpSent ? 'Resend' : 'Send OTP'}
+                        </button>
+                      )}
+                    </div>
                   </div>
+
+                  {/* Phone OTP Input */}
+                  {verification.phoneOtpSent && !verification.phoneVerified && (
+                    <div style={{ marginTop: '12px' }}>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="text"
+                          value={otpInputs.phoneOtp}
+                          onChange={(e) => setOtpInputs(prev => ({ ...prev, phoneOtp: e.target.value }))}
+                          placeholder="Enter 6-digit OTP"
+                          maxLength={6}
+                          style={{
+                            flex: 1,
+                            padding: '10px',
+                            border: '1px solid #D1D5DB',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            outline: 'none',
+                          }}
+                          onFocus={(e) => {
+                            e.currentTarget.style.borderColor = '#7C3AED';
+                            e.currentTarget.style.boxShadow = '0 0 0 3px rgba(124, 58, 237, 0.1)';
+                          }}
+                          onBlur={(e) => {
+                            e.currentTarget.style.borderColor = '#D1D5DB';
+                            e.currentTarget.style.boxShadow = 'none';
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={verifyPhoneOtp}
+                          disabled={otpInputs.phoneOtp.length !== 6}
+                          style={{
+                            padding: '10px 16px',
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            background: otpInputs.phoneOtp.length === 6 ? '#10B981' : '#D1D5DB',
+                            color: '#ffffff',
+                            border: 'none',
+                            borderRadius: '8px',
+                            cursor: otpInputs.phoneOtp.length === 6 ? 'pointer' : 'not-allowed',
+                          }}
+                        >
+                          Verify
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </div>
 
