@@ -3,8 +3,18 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Development logging
+if (import.meta.env.DEV) {
+  console.log('🔧 Supabase Config:', {
+    url: supabaseUrl ? `${supabaseUrl.slice(0, 30)}...` : 'MISSING',
+    key: supabaseAnonKey ? `${supabaseAnonKey.slice(0, 20)}...` : 'MISSING',
+  });
+}
+
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase environment variables');
+  const errorMsg = 'Missing Supabase environment variables. Please check VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your environment.';
+  console.error('❌ Supabase Error:', errorMsg);
+  throw new Error(errorMsg);
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
@@ -12,6 +22,11 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+  },
+  global: {
+    headers: {
+      'x-client-info': 'vivahgmc-web',
+    },
   },
 });
 
