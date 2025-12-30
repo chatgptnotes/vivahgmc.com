@@ -173,15 +173,16 @@ export const SignupPage: React.FC = () => {
     setSuccess('');
 
     // Validation
-    if (!verification.emailVerified) {
-      setError('Please verify your email address');
-      return;
-    }
+    // Note: Email and phone verification temporarily disabled for easier onboarding
+    // if (!verification.emailVerified) {
+    //   setError('Please verify your email address');
+    //   return;
+    // }
 
-    if (!verification.phoneVerified) {
-      setError('Please verify your phone number');
-      return;
-    }
+    // if (!verification.phoneVerified) {
+    //   setError('Please verify your phone number');
+    //   return;
+    // }
 
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
@@ -199,7 +200,7 @@ export const SignupPage: React.FC = () => {
       // Sign up with Supabase
       const { error: signUpError } = await signUp(formData.email, formData.password, {
         full_name: formData.fullName,
-        phone: formData.phone,
+        phone: `${formData.countryCode} ${formData.phone}`,
         batch_year: formData.batchYear,
         user_type: formData.userType,
       });
