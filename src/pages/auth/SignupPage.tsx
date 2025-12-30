@@ -476,7 +476,7 @@ export const SignupPage: React.FC = () => {
                       style={{
                         width: '100%',
                         paddingLeft: '48px',
-                        paddingRight: verification.emailVerified ? '16px' : '90px',
+                        paddingRight: '16px',
                         paddingTop: '12px',
                         paddingBottom: '12px',
                         border: verification.emailVerified ? '2px solid #10B981' : '1px solid #D1D5DB',
@@ -502,34 +502,46 @@ export const SignupPage: React.FC = () => {
                       placeholder="your@email.com"
                       required
                     />
-                    {!verification.emailVerified && (
-                      <button
-                        type="button"
-                        onClick={sendEmailOtp}
-                        disabled={verification.emailOtpLoading || !formData.email}
-                        style={{
-                          position: 'absolute',
-                          right: '8px',
-                          top: '50%',
-                          transform: 'translateY(-50%)',
-                          padding: '6px 12px',
-                          fontSize: '12px',
-                          fontWeight: 600,
-                          background: verification.emailOtpLoading ? '#D1D5DB' : '#7C3AED',
-                          color: '#ffffff',
-                          border: 'none',
-                          borderRadius: '8px',
-                          cursor: verification.emailOtpLoading || !formData.email ? 'not-allowed' : 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                        }}
-                      >
-                        <Send style={{ fontSize: 14 }} />
-                        {verification.emailOtpSent ? 'Resend' : 'Send OTP'}
-                      </button>
-                    )}
                   </div>
+
+                  {/* Send Email OTP Button */}
+                  {!verification.emailVerified && (
+                    <button
+                      type="button"
+                      onClick={sendEmailOtp}
+                      disabled={verification.emailOtpLoading || !formData.email}
+                      style={{
+                        marginTop: '8px',
+                        width: '100%',
+                        padding: '10px 16px',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        background: verification.emailOtpLoading ? '#D1D5DB' : '#7C3AED',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: verification.emailOtpLoading || !formData.email ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!verification.emailOtpLoading && formData.email) {
+                          e.currentTarget.style.background = '#6D28D9';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!verification.emailOtpLoading && formData.email) {
+                          e.currentTarget.style.background = '#7C3AED';
+                        }
+                      }}
+                    >
+                      <Send style={{ fontSize: 16 }} />
+                      {verification.emailOtpSent ? 'Resend Email OTP' : 'Send Email OTP'}
+                    </button>
+                  )}
 
                   {/* Email OTP Input */}
                   {verification.emailOtpSent && !verification.emailVerified && (
@@ -634,7 +646,7 @@ export const SignupPage: React.FC = () => {
                         style={{
                           width: '100%',
                           paddingLeft: '48px',
-                          paddingRight: verification.phoneVerified ? '16px' : '90px',
+                          paddingRight: '16px',
                           paddingTop: '12px',
                           paddingBottom: '12px',
                           border: verification.phoneVerified ? '2px solid #10B981' : '1px solid #D1D5DB',
@@ -660,35 +672,47 @@ export const SignupPage: React.FC = () => {
                         placeholder="9999999999"
                         required
                       />
-                      {!verification.phoneVerified && (
-                        <button
-                          type="button"
-                          onClick={sendPhoneOtp}
-                          disabled={verification.phoneOtpLoading || !formData.phone}
-                          style={{
-                            position: 'absolute',
-                            right: '8px',
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            padding: '6px 12px',
-                            fontSize: '12px',
-                            fontWeight: 600,
-                            background: verification.phoneOtpLoading ? '#D1D5DB' : '#7C3AED',
-                            color: '#ffffff',
-                            border: 'none',
-                            borderRadius: '8px',
-                            cursor: verification.phoneOtpLoading || !formData.phone ? 'not-allowed' : 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                          }}
-                        >
-                          <Send style={{ fontSize: 14 }} />
-                          {verification.phoneOtpSent ? 'Resend' : 'Send OTP'}
-                        </button>
-                      )}
                     </div>
                   </div>
+
+                  {/* Send Phone OTP Button */}
+                  {!verification.phoneVerified && (
+                    <button
+                      type="button"
+                      onClick={sendPhoneOtp}
+                      disabled={verification.phoneOtpLoading || !formData.phone}
+                      style={{
+                        marginTop: '8px',
+                        width: '100%',
+                        padding: '10px 16px',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        background: verification.phoneOtpLoading ? '#D1D5DB' : '#7C3AED',
+                        color: '#ffffff',
+                        border: 'none',
+                        borderRadius: '8px',
+                        cursor: verification.phoneOtpLoading || !formData.phone ? 'not-allowed' : 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!verification.phoneOtpLoading && formData.phone) {
+                          e.currentTarget.style.background = '#6D28D9';
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!verification.phoneOtpLoading && formData.phone) {
+                          e.currentTarget.style.background = '#7C3AED';
+                        }
+                      }}
+                    >
+                      <Send style={{ fontSize: 16 }} />
+                      {verification.phoneOtpSent ? 'Resend Phone OTP' : 'Send Phone OTP'}
+                    </button>
+                  )}
 
                   {/* Phone OTP Input */}
                   {verification.phoneOtpSent && !verification.phoneVerified && (
