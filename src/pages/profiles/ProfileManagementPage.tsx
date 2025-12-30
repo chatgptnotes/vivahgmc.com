@@ -10,6 +10,7 @@ import {
   Edit,
   Check,
   ArrowBack,
+  CameraAlt,
 } from '@mui/icons-material';
 
 export const ProfileManagementPage: React.FC = () => {
@@ -212,32 +213,60 @@ export const ProfileManagementPage: React.FC = () => {
               </h1>
             </div>
             {!editMode && (
-              <button
-                onClick={() => setEditMode(true)}
-                style={{
-                  padding: '12px 24px',
-                  fontSize: '16px',
-                  fontWeight: 600,
-                  background: '#7C3AED',
-                  color: '#ffffff',
-                  border: 'none',
-                  borderRadius: '12px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  transition: 'all 0.2s',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#6D28D9';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#7C3AED';
-                }}
-              >
-                <Edit style={{ fontSize: 20 }} />
-                Edit Profile
-              </button>
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => navigate('/photos')}
+                  style={{
+                    padding: '12px 24px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    background: '#14B8A6',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#0D9488';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#14B8A6';
+                  }}
+                >
+                  <CameraAlt style={{ fontSize: 20 }} />
+                  Manage Photos
+                </button>
+                <button
+                  onClick={() => setEditMode(true)}
+                  style={{
+                    padding: '12px 24px',
+                    fontSize: '16px',
+                    fontWeight: 600,
+                    background: '#7C3AED',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#6D28D9';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#7C3AED';
+                  }}
+                >
+                  <Edit style={{ fontSize: 20 }} />
+                  Edit Profile
+                </button>
+              </div>
             )}
           </div>
         </div>

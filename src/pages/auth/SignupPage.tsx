@@ -1,9 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import { Footer } from '../../components/ui/Footer';
-import { Favorite, Email, Lock, Person, Phone, ArrowForward, School } from '@mui/icons-material';
+import { Favorite, Email, Lock, Person, Phone, ArrowForward, School, Check } from '@mui/icons-material';
 
 export const SignupPage: React.FC = () => {
+  const navigate = useNavigate();
+  const { signUp } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -14,14 +21,50 @@ export const SignupPage: React.FC = () => {
     userType: 'parent' as 'parent' | 'child',
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Signup:', formData);
-    // TODO: Implement signup logic
+    setError('');
+    setSuccess('');
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Sign up with Supabase
+      const { error: signUpError } = await signUp(formData.email, formData.password, {
+        full_name: formData.fullName,
+        phone: formData.phone,
+        batch_year: formData.batchYear,
+        user_type: formData.userType,
+      });
+
+      if (signUpError) throw signUpError;
+
+      setSuccess('Account created successfully! Please check your email to verify your account.');
+      setTimeout(() => {
+        navigate('/profile');
+      }, 2000);
+    } catch (err: any) {
+      console.error('Signup error:', err);
+      setError(err.message || 'Failed to create account. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    setError('');
   };
 
   return (
@@ -39,6 +82,21 @@ export const SignupPage: React.FC = () => {
 
           {/* Signup Form */}
           <div style={{ background: '#ffffff', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)', padding: '32px', border: '1px solid #E5E7EB' }}>
+            {/* Success Message */}
+            {success && (
+              <div style={{ marginBottom: '24px', padding: '16px', background: '#D1FAE5', border: '1px solid #10B981', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Check style={{ fontSize: 24, color: '#10B981' }} />
+                <p style={{ color: '#065F46', fontWeight: 600, margin: 0 }}>{success}</p>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div style={{ marginBottom: '24px', padding: '16px', background: '#FEE2E2', border: '1px solid #EF4444', borderRadius: '12px' }}>
+                <p style={{ color: '#991B1B', fontWeight: 600, margin: 0 }}>{error}</p>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* User Type Selection */}
               <div>
@@ -371,16 +429,17 @@ export const SignupPage: React.FC = () => {
               {/* Submit Button */}
               <button
                 type="submit"
+                disabled={loading}
                 style={{
                   width: '100%',
                   padding: '16px',
                   fontSize: '18px',
                   fontWeight: 600,
-                  background: 'linear-gradient(to right, #7C3AED, #6D28D9)',
+                  background: loading ? '#9CA3AF' : 'linear-gradient(to right, #7C3AED, #6D28D9)',
                   color: '#ffffff',
                   border: 'none',
                   borderRadius: '12px',
-                  cursor: 'pointer',
+                  cursor: loading ? 'not-allowed' : 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -389,15 +448,19 @@ export const SignupPage: React.FC = () => {
                   transition: 'all 0.2s',
                 }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 15px 30px rgba(124, 58, 237, 0.4)';
+                  if (!loading) {
+                    e.currentTarget.style.transform = 'translateY(-2px)';
+                    e.currentTarget.style.boxShadow = '0 15px 30px rgba(124, 58, 237, 0.4)';
+                  }
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(124, 58, 237, 0.3)';
+                  if (!loading) {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = '0 10px 25px rgba(124, 58, 237, 0.3)';
+                  }
                 }}
               >
-                Create Account <ArrowForward style={{ fontSize: 20 }} />
+                {loading ? 'Creating Account...' : 'Create Account'} {!loading && <ArrowForward style={{ fontSize: 20 }} />}
               </button>
             </form>
 
