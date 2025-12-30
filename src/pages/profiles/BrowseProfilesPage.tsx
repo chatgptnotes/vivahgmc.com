@@ -12,6 +12,7 @@ import {
   VerifiedUser,
   ArrowForward,
   Person,
+  Chat,
 } from '@mui/icons-material';
 
 // Mock data for profiles
@@ -125,6 +126,32 @@ export const BrowseProfilesPage: React.FC = () => {
               <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#111827' }}>Browse Profiles</h1>
             </div>
             <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => navigate('/messages')}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: '16px',
+                  fontWeight: 600,
+                  background: '#14B8A6',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  transition: 'all 0.2s',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#0D9488';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#14B8A6';
+                }}
+              >
+                <Chat style={{ fontSize: 20 }} />
+                Messages
+              </button>
               <button
                 onClick={() => navigate('/profile')}
                 style={{

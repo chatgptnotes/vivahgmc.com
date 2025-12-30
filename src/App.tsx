@@ -7,6 +7,7 @@ import { BrowseProfilesPage } from './pages/profiles/BrowseProfilesPage';
 import { ProfileManagementPage } from './pages/profiles/ProfileManagementPage';
 import { PhotoUploadPage } from './pages/profiles/PhotoUploadPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
+import { MessagesPage } from './pages/messaging/MessagesPage';
 import './index.css';
 
 function App() {
@@ -20,8 +21,8 @@ function App() {
           <Route path="/browse" element={<BrowseProfilesPage />} />
           <Route path="/profile" element={<ProfileManagementPage />} />
           <Route path="/photos" element={<PhotoUploadPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
           <Route path="/admin" element={<AdminDashboard />} />
-          {/* More routes will be added */}
         </Routes>
       </BrowserRouter>
     </AuthProvider>
