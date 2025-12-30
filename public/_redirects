@@ -1,0 +1,5 @@
+# Redirect www to non-www
+https://www.vivahgmc.com/* https://vivahgmc.com/:splat 301!
+
+# Redirect old URLs if any
+/home /
