@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '../../components/ui/Button';
+import { Link } from 'react-router-dom';
 import { Footer } from '../../components/ui/Footer';
 import { Favorite, Email, Lock, Person, Phone, ArrowForward, School } from '@mui/icons-material';
 
 export const SignupPage: React.FC = () => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
