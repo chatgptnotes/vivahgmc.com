@@ -1,0 +1,29 @@
+# robots.txt for vivahgmc.com
+
+User-agent: *
+Allow: /
+Allow: /signup
+Allow: /login
+Disallow: /admin
+Disallow: /profile
+Disallow: /messages
+Disallow: /photos
+
+# Sitemap location
+Sitemap: https://vivahgmc.com/sitemap.xml
+
+# Crawl delay
+Crawl-delay: 10
+
+# Popular search engines
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 5
+
+User-agent: Slurp
+Allow: /
+Crawl-delay: 5
